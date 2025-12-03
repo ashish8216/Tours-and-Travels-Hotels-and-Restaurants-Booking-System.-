@@ -3,16 +3,11 @@
 Laravel Intern Kartik 12 | 82 B Group 
 
 
-setup 
-
-composer update 
-
-copy('.env.example', '.env') 
-
-php artisan key:generate 
-
-php artisan migrate:fresh --seed 
-
-npm install 
-
-npm run build 
+"setup": [
+            "composer install",
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "@php artisan key:generate",
+            "@php artisan migrate --force",
+            "npm install",
+            "npm run build"
+        ],
