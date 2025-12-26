@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('agent_earnings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('agent_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('payment_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('agent_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('payment_id')->constrained('payments')->onDelete('cascade');
             $table->decimal('commission', 10, 2);
             $table->timestamps();
         });

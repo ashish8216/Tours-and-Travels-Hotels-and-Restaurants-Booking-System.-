@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('supports', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained();
+            $table->foreignId('user_id')->nullable('users')->onDelete('cascade');
             $table->string('subject');
             $table->text('message');
             $table->enum('status', ['open', 'closed'])->default('open');
