@@ -50,12 +50,7 @@
                                         Restaurant
                                     </label>
                                 </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" name="business_types[]" value="both" id="both">
-                                    <label class="form-check-label" for="both">
-                                        Both (Hotel & Restaurant)
-                                    </label>
-                                </div>
+                                
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="business_types[]" value="tour_guide" id="tour_guide">
                                     <label class="form-check-label" for="tour_guide">
