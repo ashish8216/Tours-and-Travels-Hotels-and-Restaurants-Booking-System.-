@@ -18,9 +18,10 @@ class AgentRequestResource extends Resource
 {
     protected static ?string $model = AgentRequest::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::ChatBubbleLeftRight;
 
     protected static ?string $recordTitleAttribute = 'business_name';
+
 
     public static function form(Schema $schema): Schema
     {
@@ -48,7 +49,9 @@ class AgentRequestResource extends Resource
         ];
     }
     public static function canCreate(): bool
-{
-    return false;
-}
+    {
+      return false;
+    }
+
+
 }
