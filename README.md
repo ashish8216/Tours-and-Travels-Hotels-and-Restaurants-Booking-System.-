@@ -44,16 +44,16 @@ A complete booking management system for Tours, Travels, Hotels, and Restaurants
 - Status tracking (Booked / Reserved / Completed)  
 
 ### 🔐 Authentication & User Access
-- Laravel Breeze login/registration  
-- Admin / Staff roles  
-- Protected admin dashboard  
+- Laravel Breeze login / registration  
+- Roles: admin, agent, user
+- Protected admin dashboard with role-based access 
+
+### ⚙️ Agent Panel
+- Manage Tours, Hotels, Rooms, Restaurants, and Bookings 
 
 ### ⚙️ Admin Panel (Filament v4)
-- Manage Tours  
-- Manage Hotels  
-- Manage Rooms  
-- Manage Restaurants  
-- Manage Bookings  
+- Manage General Settings, Pages & Other Admin Tasks
+- Full control over Tours, Hotels, Rooms, Restaurants, and Bookings
 - Beautiful UI powered by Filament  
 
 ### 🎨 Additional Features
