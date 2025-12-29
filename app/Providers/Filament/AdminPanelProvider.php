@@ -27,7 +27,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->authGuard('web') // Use your web guard
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -51,6 +51,7 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                'role:admin', //  restrict panel to admin via  middleware
             ])
             ->authMiddleware([
                 Authenticate::class,
