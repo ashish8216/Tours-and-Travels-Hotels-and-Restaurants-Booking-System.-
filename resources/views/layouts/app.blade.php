@@ -9,9 +9,10 @@
 
     @include('partials.navbar')
 
-    <main class="min-h-screen">
-        @yield('content')
-    </main>
+<main class="min-h-screen pt-20">
+    @yield('content')
+</main>
+
 
     @include('partials.footer')
 

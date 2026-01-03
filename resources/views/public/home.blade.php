@@ -6,7 +6,7 @@
 
     <!-- HERO SECTION -->
     <section class="relative h-[85vh]">
-        <img src="{{ url('images/a.png') }}" alt="Travel Booking" class="w-full h-full object-cover">
+        <img src="{{ url('images/a.png') }}" alt="Travel Booking" class="absolute inset-0 w-full h-full object-cover object-center">
 
         <!-- Overlay -->
         <div class="absolute inset-0 bg-black/40 flex items-center">

@@ -17,6 +17,11 @@ Route::get('/user/dashboard', function () {
     return view('user.dashboard');
 });
 
+Route::get('/contact', function () {
+    return view('contact');
+});
+
+
 //admin routes
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');

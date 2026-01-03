@@ -1,17 +1,32 @@
-<nav class="absolute top-0 left-0 w-full z-50">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        {{-- <h1 class="text-white text-xl font-bold">Travel Booking</h1> --}}
+<nav class="fixed top-0 w-full bg-gray-900 text-white z-50">
+    <div class="max-w-6xl mx-auto px-6 flex justify-between items-center h-16">
 
-        <ul class="hidden md:flex space-x-8 text-white text-lg font-semibold">
-            <li><a href="/" class="hover:underline">Home</a></li>
-            <li><a href="/hotels" class="hover:underline">Hotels</a></li>
-            <li><a href="/restaurants" class="hover:underline">Restaurants</a></li>
-            <li><a href="/contact" class="hover:underline">Contact</a></li>
-        </ul>
+        <!-- Left menu -->
+        <div class="flex space-x-6">
+            <a href="/" class="hover:text-blue-400">Home</a>
+            <a href="/hotels" class="hover:text-blue-400">Hotels</a>
+            <a href="/restaurants" class="hover:text-blue-400">Restaurants</a>
+            <a href="/contact" class="hover:text-blue-400">Contact</a>
+        </div>
 
-        <a href="/login"
-           class="bg-blue-600 text-white px-4 py-2 rounded">
-            Login
-        </a>
+        <!-- Right menu -->
+        <div>
+            @guest
+                <a href="{{ route('login') }}"
+                   class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700">
+                    Login
+                </a>
+            @endguest
+
+            @auth
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button class="bg-red-500 px-4 py-2 rounded hover:bg-red-600">
+                        Logout
+                    </button>
+                </form>
+            @endauth
+        </div>
+
     </div>
 </nav>
