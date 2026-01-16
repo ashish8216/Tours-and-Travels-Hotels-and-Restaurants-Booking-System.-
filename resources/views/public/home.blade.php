@@ -5,6 +5,11 @@
 @section('content')
 
     <!-- HERO SECTION -->
+
+
+
+
+
     <section class="relative h-[85vh]">
         <img src="{{ url('images/a.png') }}" alt="Travel Booking" class="absolute inset-0 w-full h-full object-cover object-center">
 

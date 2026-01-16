@@ -26,6 +26,18 @@ Route::get('/hotels', function () {
 });
 
 
+Route::get('/restaurants', function () {
+    return view('hotels');
+});
+
+
+Route::get('/booking', function () {
+    return view('booking');
+})->name('booking');
+
+
+
+
 
 //admin routes
 Route::middleware(['auth', 'role:admin'])->group(function () {
