@@ -6,10 +6,9 @@
 
 <div class="min-h-screen flex items-center justify-center bg-gray-100 px-4">
 
-    <!-- START BOOKING CARD -->
     <div class="bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl p-6 w-full max-w-4xl text-gray-800">
 
-        <!-- Tabs -->
+
         <div class="flex justify-center gap-6 mb-6">
             <button class="text-blue-600 font-semibold border-b-2 border-blue-600 pb-1">
                 Hotels
