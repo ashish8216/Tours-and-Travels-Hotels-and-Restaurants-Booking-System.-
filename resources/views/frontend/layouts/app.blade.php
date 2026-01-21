@@ -26,7 +26,7 @@
             <div class="flex justify-between items-center h-16">
                 <!-- Logo -->
                 <div class="flex-shrink-0">
-                    <a href="#" class="text-2xl font-bold text-gray-900">
+                    <a href="/" class="text-2xl font-bold text-gray-900">
                         LOGO
                     </a>
                 </div>
@@ -48,10 +48,11 @@
                     <a href="#" class="text-gray-900 hover:text-blue-600 px-3 py-2 text-sm font-medium transition {{ request()->routeIs('about') ? 'text-blue-600' : '' }}">
                         About Us
                     </a>
-                    <a href="#" class="text-gray-900 hover:text-blue-600 px-3 py-2 text-sm font-medium transition {{ request()->routeIs('blog*') ? 'text-blue-600' : '' }}">
+                    <!-- Fixed Blog Link - Changed from href="blog" to named route -->
+                    <a href="{{ route('blog') }}" class="text-gray-900 hover:text-blue-600 px-3 py-2 text-sm font-medium transition {{ request()->routeIs('blog*') ? 'text-blue-600' : '' }}">
                         Blog
                     </a>
-                    <a href="#"class="text-gray-900 hover:text-blue-600 px-3 py-2 text-sm font-medium transition {{ request()->routeIs('contact') ? 'text-blue-600' : '' }}">
+                    <a href="#" class="text-gray-900 hover:text-blue-600 px-3 py-2 text-sm font-medium transition {{ request()->routeIs('contact') ? 'text-blue-600' : '' }}">
                         Contact
                     </a>
                 </div>
@@ -98,7 +99,8 @@
                 <a href="#" class="block px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50 hover:text-blue-600 rounded-md">Hotels</a>
                 <a href="#" class="block px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50 hover:text-blue-600 rounded-md">Restaurants</a>
                 <a href="#" class="block px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50 hover:text-blue-600 rounded-md">About Us</a>
-                <a href="#" class="block px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50 hover:text-blue-600 rounded-md">Blog</a>
+                <!-- Fixed Mobile Blog Link - Changed from href="blog" to named route -->
+                <a href="{{ route('blog') }}" class="block px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50 hover:text-blue-600 rounded-md">Blog</a>
                 <a href="#" class="block px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50 hover:text-blue-600 rounded-md">Contact</a>
 
                 @auth
@@ -149,4 +151,3 @@
     </style>
 </body>
 </html>
-

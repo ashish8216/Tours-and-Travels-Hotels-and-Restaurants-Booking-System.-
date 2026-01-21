@@ -11,6 +11,7 @@ use App\Http\Controllers\Agent\RoomController;
 use App\Http\Controllers\Agent\TourBookingController;
 use App\Http\Controllers\Agent\TourController;
 use App\Http\Controllers\Agent\TourDateController;
+use App\Http\Controllers\Frontend\BlogController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -139,7 +140,8 @@ Route::post('/become-agent', [AgentRequestController::class, 'store'])
 // Route::get('/hotels', [HotelController::class, 'index'])->name('hotels');
 // Route::get('/restaurants', [RestaurantController::class, 'index'])->name('restaurants');
 // Route::get('/about', [PageController::class, 'about'])->name('about');
-// Route::get('/blog', [BlogController::class, 'index'])->name('blog');
+ Route::get('/blog', [BlogController::class, 'index'])->name('blog');
+ Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 // Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 // Route::get('/packages', [PackageController::class, 'index'])->name('packages');
 // Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
