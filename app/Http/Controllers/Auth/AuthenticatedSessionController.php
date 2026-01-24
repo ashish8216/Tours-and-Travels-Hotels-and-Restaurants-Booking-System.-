@@ -13,6 +13,11 @@ class AuthenticatedSessionController extends Controller
 {
     public function create(): View
     {
+        // Store redirect URL if provided (from tour booking)
+        if (request()->has('redirect')) {
+            session(['tour_booking_redirect' => request('redirect')]);
+        }
+
         return view('auth.login');
     }
 
@@ -24,10 +29,22 @@ class AuthenticatedSessionController extends Controller
 
         $user = Auth::user();
 
+        // Check if this login was for tour booking
+        $tourRedirect = session('tour_booking_redirect');
+
+        if ($tourRedirect && $user->role === 'user') {
+            // Clear the session
+            session()->forget('tour_booking_redirect');
+
+            // Redirect back to tour page
+            return redirect($tourRedirect);
+        }
+
+        // Default role-based redirects
         return match ($user->role) {
             'admin' => redirect('/admin'),
             'agent' => redirect('/agent/dashboard'),
-            default => redirect('/user/dashboard'),
+            default => redirect('/'), // Changed from /user/dashboard to /
         };
     }
 

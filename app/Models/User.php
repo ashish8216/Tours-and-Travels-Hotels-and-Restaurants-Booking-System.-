@@ -1,11 +1,12 @@
 <?php
 
 namespace App\Models;
-
+use App\Models\TourBooking;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+
 
 class User extends Authenticatable
 {
@@ -35,6 +36,10 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $attributes = [
+        'role' => 'user', // Default role
+    ];
+
     /**
      * Get the attributes that should be cast.
      *
@@ -60,6 +65,6 @@ class User extends Authenticatable
 
     public function tourBookings()
     {
-        return $this->hasMany(TourBooking::class);
+        return $this->hasMany(TourBooking::class, 'user_id');
     }
 }

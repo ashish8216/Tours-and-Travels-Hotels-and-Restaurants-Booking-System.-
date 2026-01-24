@@ -12,6 +12,7 @@ use App\Http\Controllers\Agent\TourBookingController;
 use App\Http\Controllers\Agent\TourController;
 use App\Http\Controllers\Agent\TourDateController;
 use App\Http\Controllers\Frontend\BlogController;
+use App\Http\Controllers\Frontend\TourController as FrontendTourController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -24,19 +25,16 @@ Route::get('/', function () {
 
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $user = Auth::user();
+
+    return match ($user->role) {
+        'admin' => redirect('/admin'),
+        'agent' => redirect()->route('agent.dashboard'),
+        default => redirect('/'), // Regular users go to homepage
+    };
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    // REMOVE THIS DUPLICATE:
-    // Route::get('/agent/dashboard', function () {
-    //     return view('agent.dashboard');
-    // })->middleware('role:agent');
-
-    Route::get('/user/dashboard', function () {
-        return view('user.dashboard');
-    })->middleware('role:user');
-
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -140,10 +138,25 @@ Route::post('/become-agent', [AgentRequestController::class, 'store'])
 // Route::get('/hotels', [HotelController::class, 'index'])->name('hotels');
 // Route::get('/restaurants', [RestaurantController::class, 'index'])->name('restaurants');
 // Route::get('/about', [PageController::class, 'about'])->name('about');
- Route::get('/blog', [BlogController::class, 'index'])->name('blog');
- Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
-// Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+Route::get('/tours', [FrontendTourController::class, 'index'])->name('tours.index');
+Route::get('/tours/{id}', [FrontendTourController::class, 'show'])->name('tours.show');
+Route::post('/tours/{id}/check-availability', [FrontendTourController::class, 'checkAvailability'])->name('tours.check-availability');
+Route::get('/blog', [BlogController::class, 'index'])->name('blog');
+Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
+Route::get('/contact', function () {return view('frontend.contact');})->name('contact');
+Route::get('/about', function () {return view('frontend.about_us');})->name('about');
+
 // Route::get('/packages', [PackageController::class, 'index'])->name('packages');
 // Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+Route::middleware(['auth'])->group(function () {
+    // Add this route for actual booking
+    Route::post('/tours/{tour}/book', [FrontendTourController::class, 'book'])->name('tours.book');
 
+    // Booking confirmation page
+    Route::get('/booking/{booking}/confirmation', [FrontendTourController::class, 'confirmation'])
+        ->name('booking.confirmation');
+
+    // User's bookings
+    Route::get('/my-bookings', [FrontendTourController::class, 'myBookings'])->name('my-bookings');
+});
 require __DIR__ . '/auth.php';

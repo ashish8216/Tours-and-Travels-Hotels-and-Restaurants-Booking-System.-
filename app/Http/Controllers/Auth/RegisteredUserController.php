@@ -19,6 +19,11 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
+        // Store redirect URL if provided (from tour booking)
+        if (request()->has('redirect')) {
+            session(['tour_booking_redirect' => request('redirect')]);
+        }
+
         return view('auth.register');
     }
 
@@ -39,12 +44,25 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'user', // Make sure to set default role
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // Check if this registration was for tour booking
+        $tourRedirect = session('tour_booking_redirect');
+
+        if ($tourRedirect) {
+            // Clear the session
+            session()->forget('tour_booking_redirect');
+
+            // Redirect back to tour page
+            return redirect($tourRedirect);
+        }
+
+        // Default redirect to homepage instead of dashboard
+        return redirect('/');
     }
 }
