@@ -27,8 +27,9 @@ Route::get('/hotels', function () {
 
 
 Route::get('/restaurants', function () {
-    return view('hotels');
+    return view('restaurants');
 });
+
 
 
 Route::get('/booking', function () {

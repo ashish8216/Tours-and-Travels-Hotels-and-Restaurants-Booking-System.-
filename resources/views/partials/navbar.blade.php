@@ -1,3 +1,4 @@
+
 <nav class="fixed top-0 w-full bg-gray-900 text-white z-50">
     <div class="max-w-6xl mx-auto px-6 flex justify-between items-center h-16">
 
