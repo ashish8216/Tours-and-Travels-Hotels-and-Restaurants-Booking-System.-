@@ -67,16 +67,22 @@
                         Contact
                     </a>
                      @auth
-        <a href="{{ route('my-bookings') }}"
-            class="text-gray-900 hover:text-blue-600 px-3 py-2 text-sm font-medium transition {{ request()->routeIs('my-bookings*') ? 'text-blue-600' : '' }}">
-            My Bookings
-        </a>
-    @endauth
+                        <a href="{{ route('my-bookings') }}"
+                            class="text-gray-900 hover:text-blue-600 px-3 py-2 text-sm font-medium transition {{ request()->routeIs('my-bookings*') ? 'text-blue-600' : '' }}">
+                            My Bookings
+                        </a>
+                    @endauth
                 </div>
 
                 <!-- Auth Links -->
                 <div class="hidden md:flex items-center space-x-4">
                     @auth
+                        <!-- Become an Agent Button (for logged-in users) -->
+                        <a href="{{ route('agent.request.form') }}"
+                           class="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-lg text-sm font-medium transition">
+                            Become an Agent
+                        </a>
+
                         <form method="POST" action="{{ route('logout') }}" class="inline">
                             @csrf
                             <button type="submit" class="text-gray-900 hover:text-blue-600 px-3 py-2 text-sm font-medium">
@@ -84,6 +90,12 @@
                             </button>
                         </form>
                     @else
+                        <!-- For non-logged in users, show it too but redirect to login -->
+                        <a href="{{ route('login') }}?redirect={{ urlencode(route('agent.request.form')) }}"
+                           class="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-lg text-sm font-medium transition">
+                            Become an Agent
+                        </a>
+
                         <a href="{{ route('login') }}"
                             class="text-gray-900 hover:text-blue-600 px-3 py-2 text-sm font-medium">
                             Login
@@ -129,11 +141,24 @@
                 <a href="{{ route('contact') }}"
                     class="block px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50 hover:text-blue-600 rounded-md">Contact</a>
                      @auth
-        <a href="{{ route('my-bookings') }}"
-            class="text-gray-900 hover:text-blue-600 px-3 py-2 text-sm font-medium transition {{ request()->routeIs('my-bookings*') ? 'text-blue-600' : '' }}">
-            My Bookings
-        </a>
-    @endauth
+                        <a href="{{ route('my-bookings') }}"
+                            class="block px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50 hover:text-blue-600 rounded-md">
+                            My Bookings
+                        </a>
+                    @endauth
+
+                <!-- Become an Agent in Mobile Menu -->
+                @auth
+                    <a href="{{ route('agent.request.form') }}"
+                       class="block px-3 py-2 text-base font-medium text-white bg-green-600 hover:bg-green-700 rounded-md">
+                        Become an Agent
+                    </a>
+                @else
+                    <a href="{{ route('login') }}?redirect={{ urlencode(route('agent.request.form')) }}"
+                       class="block px-3 py-2 text-base font-medium text-white bg-green-600 hover:bg-green-700 rounded-md">
+                        Become an Agent
+                    </a>
+                @endauth
 
                 @auth
                     <form method="POST" action="{{ route('logout') }}">
@@ -254,6 +279,16 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                             </svg>
                             <span class="text-gray-300">info@toursandtravels.com</span>
+                        </li>
+                        <li class="flex items-center mt-4 pt-4 border-t border-gray-800">
+                            <svg class="w-5 h-5 mr-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <a href="{{ route('agent.request.form') }}"
+                               class="text-green-400 hover:text-green-300 font-medium transition">
+                                Become a Partner Agent
+                            </a>
                         </li>
                     </ul>
                 </div>
