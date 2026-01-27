@@ -41,12 +41,14 @@
 
                     <!-- Hotel Service Section -->
                     @if (in_array('hotel', $services))
-                        <div x-data="{ hotelOpen: {{ request()->routeIs('agent.rooms.*') || request()->routeIs('agent.room-bookings.*') ? 'true' : 'false' }} }">
+                        <div x-data="{ hotelOpen: {{ request()->routeIs('agent.hotels.*') || request()->routeIs('agent.rooms.*') || request()->routeIs('agent.room-bookings.*') ? 'true' : 'false' }} }">
                             <button @click="hotelOpen = !hotelOpen"
                                 class="w-full flex items-center justify-between px-4 py-3 rounded-lg
-                                    {{ request()->routeIs('agent.rooms.*') || request()->routeIs('agent.room-bookings.*')
-                                        ? 'bg-blue-50 text-blue-600'
-                                        : 'text-gray-600 hover:bg-gray-100' }}">
+                {{ request()->routeIs('agent.hotels.*') ||
+                request()->routeIs('agent.rooms.*') ||
+                request()->routeIs('agent.room-bookings.*')
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'text-gray-600 hover:bg-gray-100' }}">
                                 <div class="flex items-center">
                                     <i class="fas fa-hotel w-5 mr-3"></i>
                                     <span>Hotel</span>
@@ -56,18 +58,74 @@
                             </button>
 
                             <div x-show="hotelOpen" x-collapse class="ml-6 mt-1 space-y-1">
-                                <a href="{{ route('agent.rooms.index') }}"
+                                <!-- Manage Hotel - Similar to Manage Restaurant -->
+                                <a href="{{ route('agent.hotels.index') }}"
                                     class="flex items-center px-4 py-2 rounded-lg text-sm
-                                        {{ request()->routeIs('agent.rooms.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100' }}">
-                                    <i class="fas fa-door-open w-4 mr-2"></i>
-                                    Manage Rooms
+                    {{ request()->routeIs('agent.hotels.index') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100' }}">
+                                    <i class="fas fa-building w-4 mr-2"></i>
+                                    Manage Hotel
                                 </a>
-                                <a href="{{ route('agent.room-bookings.index') }}"
-                                    class="flex items-center px-4 py-2 rounded-lg text-sm
-                                        {{ request()->routeIs('agent.room-bookings.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100' }}">
-                                    <i class="fas fa-calendar-check w-4 mr-2"></i>
-                                    Room Bookings
-                                </a>
+
+                                <!-- Manage Rooms - Always visible -->
+                                @php
+                                    $hotelId = null;
+
+                                    // Try to get hotel ID from current route if we're on rooms/bookings pages
+if (
+    request()->routeIs('agent.rooms.*') ||
+    request()->routeIs('agent.room-bookings.*') ||
+    request()->routeIs('agent.hotels.show')
+) {
+    // Check if hotel parameter exists in the route
+    $routeHotel = request()->route('hotel');
+                                        if ($routeHotel && is_object($routeHotel)) {
+                                            $hotelId = $routeHotel->id;
+                                        } elseif ($routeHotel && is_numeric($routeHotel)) {
+                                            $hotelId = $routeHotel;
+                                        }
+                                    }
+
+                                    // If still no hotel ID and agent exists with hotel
+                                    if (!$hotelId && Auth::user()->agent) {
+                                        // Load hotel relationship if not already loaded
+                                        if (Auth::user()->agent->hotel) {
+                                            $hotelId = Auth::user()->agent->hotel->id;
+                                        }
+                                    }
+                                @endphp
+
+                                @if ($hotelId && Route::has('agent.rooms.index'))
+                                    <a href="{{ route('agent.rooms.index') }}"
+                                        class="flex items-center px-4 py-2 rounded-lg text-sm
+                        {{ request()->routeIs('agent.rooms.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100' }}">
+                                        <i class="fas fa-door-open w-4 mr-2"></i>
+                                        Manage Rooms
+                                    </a>
+                                @elseif (Auth::user()->agent && Auth::user()->agent->hasHotel())
+                                    <!-- Show disabled link if agent has hotel but no ID could be determined -->
+                                    <span
+                                        class="flex items-center px-4 py-2 rounded-lg text-sm text-gray-400 cursor-not-allowed">
+                                        <i class="fas fa-door-open w-4 mr-2"></i>
+                                        Manage Rooms
+                                    </span>
+                                @endif
+
+                                <!-- Room Bookings - Always visible -->
+                                @if ($hotelId && Route::has('agent.room-bookings.index'))
+                                    <a href="{{ route('agent.room-bookings.index') }}"
+                                        class="flex items-center px-4 py-2 rounded-lg text-sm
+                        {{ request()->routeIs('agent.room-bookings.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100' }}">
+                                        <i class="fas fa-calendar-check w-4 mr-2"></i>
+                                        Room Bookings
+                                    </a>
+                                @elseif (Auth::user()->agent && Auth::user()->agent->hasHotel())
+                                    <!-- Show disabled link if agent has hotel but no ID could be determined -->
+                                    <span
+                                        class="flex items-center px-4 py-2 rounded-lg text-sm text-gray-400 cursor-not-allowed">
+                                        <i class="fas fa-calendar-check w-4 mr-2"></i>
+                                        Room Bookings
+                                    </span>
+                                @endif
                             </div>
                         </div>
                     @endif
@@ -214,103 +272,117 @@ if (
         <!-- Main Content -->
         <div class="flex-1 flex flex-col">
             <!-- Header -->
-            <header class="bg-white border-b border-gray-200">
-                <div class="px-4 md:px-6 py-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <button @click="sidebarOpen = true" class="text-gray-500 md:hidden mr-4">
-                                <i class="fas fa-bars text-lg"></i>
+<header class="bg-white border-b border-gray-200">
+    <div class="px-4 md:px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <button @click="sidebarOpen = true" class="text-gray-500 md:hidden mr-4">
+                    <i class="fas fa-bars text-lg"></i>
+                </button>
+                <div class="hidden md:block">
+                    @if (request()->routeIs('agent.dashboard'))
+                        <h1 class="text-lg font-medium text-gray-800">Dashboard</h1>
+                    @elseif(request()->routeIs('agent.hotels.*'))
+                        <h1 class="text-lg font-medium text-gray-800">Hotel Management</h1>
+                    @elseif(request()->routeIs('agent.rooms.*'))
+                        <h1 class="text-lg font-medium text-gray-800">Hotel Rooms</h1>
+                    @elseif(request()->routeIs('agent.room-bookings.*'))
+                        <h1 class="text-lg font-medium text-gray-800">Room Bookings</h1>
+                    @elseif(request()->routeIs('agent.restaurants.*'))
+                        <h1 class="text-lg font-medium text-gray-800">Restaurant Management</h1>
+                    @elseif(request()->routeIs('agent.restaurant.reservations.*') || request()->routeIs('agent.restaurant-bookings.*'))
+                        <h1 class="text-lg font-medium text-gray-800">Restaurant Reservations</h1>
+                    @elseif(request()->routeIs('agent.tours.*'))
+                        <h1 class="text-lg font-medium text-gray-800">Tour Management</h1>
+                    @elseif(request()->routeIs('agent.tour-bookings.*'))
+                        <h1 class="text-lg font-medium text-gray-800">Tour Bookings</h1>
+                    @else
+                        <h1 class="text-lg font-medium text-gray-800">Agent Panel</h1>
+                    @endif
+                </div>
+            </div>
+
+            <!-- User Menu (unchanged) -->
+            <div class="flex items-center space-x-4">
+                <!-- User Dropdown -->
+                <div x-data="{ dropdownOpen: false }" class="relative">
+                    <button @click="dropdownOpen = !dropdownOpen"
+                        class="flex items-center space-x-2 focus:outline-none">
+                        <img class="h-8 w-8 rounded-full border"
+                            src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=3b82f6&color=fff"
+                            alt="{{ Auth::user()->name }}">
+                        <span class="hidden md:block text-gray-700">{{ Auth::user()->name }}</span>
+                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                    </button>
+
+                    <div x-show="dropdownOpen" @click.away="dropdownOpen = false"
+                        class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-1">
+                        <a href="{{ route('profile.edit') }}"
+                            class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <i class="fas fa-user mr-2"></i> Profile
+                        </a>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit"
+                                class="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                <i class="fas fa-sign-out-alt mr-2"></i> Logout
                             </button>
-                            <div class="hidden md:block">
-                                @if (request()->routeIs('agent.dashboard'))
-                                    <h1 class="text-lg font-medium text-gray-800">Dashboard</h1>
-                                @elseif(request()->routeIs('agent.rooms.*'))
-                                    <h1 class="text-lg font-medium text-gray-800">Hotel Management</h1>
-                                @elseif(request()->routeIs('agent.room-bookings.*'))
-                                    <h1 class="text-lg font-medium text-gray-800">Room Bookings</h1>
-                                @elseif(request()->routeIs('agent.restaurants.*'))
-                                    <h1 class="text-lg font-medium text-gray-800">Restaurant Management</h1>
-                                @elseif(request()->routeIs('agent.restaurant.reservations.*') || request()->routeIs('agent.restaurant-bookings.*'))
-                                    <h1 class="text-lg font-medium text-gray-800">Restaurant Reservations</h1>
-                                @elseif(request()->routeIs('agent.tours.*'))
-                                    <h1 class="text-lg font-medium text-gray-800">Tour Management</h1>
-                                @elseif(request()->routeIs('agent.tour-bookings.*'))
-                                    <h1 class="text-lg font-medium text-gray-800">Tour Bookings</h1>
-                                @else
-                                    <h1 class="text-lg font-medium text-gray-800">Agent Panel</h1>
-                                @endif
-                            </div>
-                        </div>
-
-                        <!-- User Menu -->
-                        <div class="flex items-center space-x-4">
-                            <!-- User Dropdown -->
-                            <div x-data="{ dropdownOpen: false }" class="relative">
-                                <button @click="dropdownOpen = !dropdownOpen"
-                                    class="flex items-center space-x-2 focus:outline-none">
-                                    <img class="h-8 w-8 rounded-full border"
-                                        src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=3b82f6&color=fff"
-                                        alt="{{ Auth::user()->name }}">
-                                    <span class="hidden md:block text-gray-700">{{ Auth::user()->name }}</span>
-                                    <i class="fas fa-chevron-down text-xs text-gray-400"></i>
-                                </button>
-
-                                <div x-show="dropdownOpen" @click.away="dropdownOpen = false"
-                                    class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-1">
-                                    <a href="{{ route('profile.edit') }}"
-                                        class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        <i class="fas fa-user mr-2"></i> Profile
-                                    </a>
-                                    <form method="POST" action="{{ route('logout') }}">
-                                        @csrf
-                                        <button type="submit"
-                                            class="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
-            </header>
+            </div>
+        </div>
+    </div>
+</header>
 
             <!-- Breadcrumbs -->
-            @if (!request()->routeIs('agent.dashboard'))
-                <div class="bg-gray-50 border-b border-gray-200 px-4 md:px-6 py-2">
-                    <nav class="flex" aria-label="Breadcrumb">
-                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                            <li class="inline-flex items-center">
-                                <a href="{{ route('agent.dashboard') }}"
-                                    class="inline-flex items-center text-sm text-gray-700 hover:text-blue-600">
-                                    <i class="fas fa-home mr-2"></i>
-                                    Dashboard
-                                </a>
-                            </li>
-                            @if (request()->routeIs('agent.rooms.*'))
-                                <li class="inline-flex items-center">
-                                    <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                                    <span class="text-sm text-gray-500">Hotel</span>
-                                </li>
-                            @endif
-                            @if (request()->routeIs('agent.restaurants.*') ||
-                                    request()->routeIs('agent.restaurant.reservations.*') ||
-                                    request()->routeIs('agent.restaurant-bookings.*'))
-                                <li class="inline-flex items-center">
-                                    <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                                    <span class="text-sm text-gray-500">Restaurant</span>
-                                </li>
-                            @endif
-                            @if (request()->routeIs('agent.tours.*'))
-                                <li class="inline-flex items-center">
-                                    <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                                    <span class="text-sm text-gray-500">Tours</span>
-                                </li>
-                            @endif
-                        </ol>
-                    </nav>
-                </div>
-            @endif
+@if (!request()->routeIs('agent.dashboard'))
+    <div class="bg-gray-50 border-b border-gray-200 px-4 md:px-6 py-2">
+        <nav class="flex" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a href="{{ route('agent.dashboard') }}"
+                        class="inline-flex items-center text-sm text-gray-700 hover:text-blue-600">
+                        <i class="fas fa-home mr-2"></i>
+                        Dashboard
+                    </a>
+                </li>
+                @if (request()->routeIs('agent.hotels.*'))
+                    <li class="inline-flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
+                        <span class="text-sm text-gray-500">Hotel</span>
+                    </li>
+                @endif
+                @if (request()->routeIs('agent.rooms.*'))
+                    <li class="inline-flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
+                        <span class="text-sm text-gray-500">Rooms</span>
+                    </li>
+                @endif
+                @if (request()->routeIs('agent.room-bookings.*'))
+                    <li class="inline-flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
+                        <span class="text-sm text-gray-500">Bookings</span>
+                    </li>
+                @endif
+                @if (request()->routeIs('agent.restaurants.*') ||
+                        request()->routeIs('agent.restaurant.reservations.*') ||
+                        request()->routeIs('agent.restaurant-bookings.*'))
+                    <li class="inline-flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
+                        <span class="text-sm text-gray-500">Restaurant</span>
+                    </li>
+                @endif
+                @if (request()->routeIs('agent.tours.*'))
+                    <li class="inline-flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
+                        <span class="text-sm text-gray-500">Tours</span>
+                    </li>
+                @endif
+            </ol>
+        </nav>
+    </div>
+@endif
 
             <!-- Main Content Area -->
             <main class="flex-1 p-4 md:p-6">

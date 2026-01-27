@@ -189,43 +189,60 @@
 
 <!-- Quick Links -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <a href="{{ route('agent.rooms.index') }}"
-       class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-        <div class="flex items-center">
-            <div class="p-3 bg-blue-100 text-blue-600 rounded-lg mr-4">
-                <i class="fas fa-hotel text-xl"></i>
+    @if(in_array('hotel', $services))
+        <a href="{{ route('agent.hotels.index') }}"
+           class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+            <div class="flex items-center">
+                <div class="p-3 bg-blue-100 text-blue-600 rounded-lg mr-4">
+                    <i class="fas fa-building text-xl"></i>
+                </div>
+                <div>
+                    <h4 class="font-semibold">Manage Hotel</h4>
+                    <p class="text-sm text-gray-600">Update hotel details and settings</p>
+                </div>
             </div>
-            <div>
-                <h4 class="font-semibold">Manage Rooms</h4>
-                <p class="text-sm text-gray-600">Add, edit or remove rooms</p>
-            </div>
-        </div>
-    </a>
+        </a>
 
-    <a href="{{ route('agent.room-bookings.create') }}"
-       class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-        <div class="flex items-center">
-            <div class="p-3 bg-green-100 text-green-600 rounded-lg mr-4">
-                <i class="fas fa-calendar-plus text-xl"></i>
+        <a href="{{ route('agent.rooms.index') }}"
+           class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+            <div class="flex items-center">
+                <div class="p-3 bg-blue-100 text-blue-600 rounded-lg mr-4">
+                    <i class="fas fa-hotel text-xl"></i>
+                </div>
+                <div>
+                    <h4 class="font-semibold">Manage Rooms</h4>
+                    <p class="text-sm text-gray-600">Add, edit or remove rooms</p>
+                </div>
             </div>
-            <div>
-                <h4 class="font-semibold">New Booking</h4>
-                <p class="text-sm text-gray-600">Create walk-in/phone booking</p>
-            </div>
-        </div>
-    </a>
+        </a>
 
-    <a href="{{ route('agent.room-bookings.index') }}"
-       class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-        <div class="flex items-center">
-            <div class="p-3 bg-purple-100 text-purple-600 rounded-lg mr-4">
-                <i class="fas fa-list-alt text-xl"></i>
+        <a href="{{ route('agent.room-bookings.create') }}"
+           class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+            <div class="flex items-center">
+                <div class="p-3 bg-green-100 text-green-600 rounded-lg mr-4">
+                    <i class="fas fa-calendar-plus text-xl"></i>
+                </div>
+                <div>
+                    <h4 class="font-semibold">New Booking</h4>
+                    <p class="text-sm text-gray-600">Create walk-in/phone booking</p>
+                </div>
             </div>
-            <div>
-                <h4 class="font-semibold">View All Bookings</h4>
-                <p class="text-sm text-gray-600">Manage all hotel bookings</p>
+        </a>
+    @endif
+
+    @if(in_array('restaurant', $services))
+        <a href="{{ route('agent.restaurants.index') }}"
+           class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+            <div class="flex items-center">
+                <div class="p-3 bg-orange-100 text-orange-600 rounded-lg mr-4">
+                    <i class="fas fa-utensils text-xl"></i>
+                </div>
+                <div>
+                    <h4 class="font-semibold">Manage Restaurant</h4>
+                    <p class="text-sm text-gray-600">Update restaurant details</p>
+                </div>
             </div>
-        </div>
-    </a>
+        </a>
+    @endif
 </div>
 @endsection

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Agent\DashboardController;
+use App\Http\Controllers\Agent\HotelController;
 use App\Http\Controllers\Agent\RestaurantController;
 use App\Http\Controllers\Agent\RestaurantReservationController;
 use App\Http\Controllers\Agent\RestaurantTableController;
@@ -47,7 +48,10 @@ Route::middleware(['auth', 'role:agent'])->prefix('agent')->name('agent.')->grou
 
     // REMOVE THIS DUPLICATE:
     // Route::get('/dashboard', fn() => view('agent.dashboard'))->name('dashboard');
-
+    Route::get('/hotels', [HotelController::class, 'index'])->name('hotels.index');
+    Route::get('/hotels/{hotel}', [HotelController::class, 'show'])->name('hotels.show');
+    Route::get('/hotels/{hotel}/edit', [HotelController::class, 'edit'])->name('hotels.edit');
+    Route::put('/hotels/{hotel}', [HotelController::class, 'update'])->name('hotels.update');
     // Room routes
     Route::resource('rooms', RoomController::class);
 
@@ -143,8 +147,12 @@ Route::get('/tours/{id}', [FrontendTourController::class, 'show'])->name('tours.
 Route::post('/tours/{id}/check-availability', [FrontendTourController::class, 'checkAvailability'])->name('tours.check-availability');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
-Route::get('/contact', function () {return view('frontend.contact');})->name('contact');
-Route::get('/about', function () {return view('frontend.about_us');})->name('about');
+Route::get('/contact', function () {
+    return view('frontend.contact');
+})->name('contact');
+Route::get('/about', function () {
+    return view('frontend.about_us');
+})->name('about');
 
 // Route::get('/packages', [PackageController::class, 'index'])->name('packages');
 // Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');

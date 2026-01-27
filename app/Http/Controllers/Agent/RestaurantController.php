@@ -19,7 +19,14 @@ class RestaurantController extends Controller
                 ->with('error', 'Please complete your agent profile first.');
         }
 
-        $restaurant = Restaurant::byAgent($agent->id)->first();
+        // Check if agent has restaurant service
+        if (!$agent->hasService('restaurant')) {
+            return redirect()->route('agent.dashboard')
+                ->with('error', 'Restaurant service is not enabled for your account.');
+        }
+
+        // Get or create the restaurant
+        $restaurant = $agent->restaurant;
 
         if (!$restaurant) {
             // Auto-create restaurant for restaurant agents
