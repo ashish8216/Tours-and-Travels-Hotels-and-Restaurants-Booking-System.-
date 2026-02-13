@@ -216,46 +216,73 @@
             </div>
 
             <!-- Amenities -->
+            <!-- Amenities -->
+@php
+    // Decode amenities properly - handle both JSON string and plain array
+    $amenities = [];
+
+    if (!empty($hotel->amenities)) {
+        if (is_string($hotel->amenities)) {
+            // Try to decode as JSON
+            $decoded = json_decode($hotel->amenities, true);
+
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $amenities = $decoded;
+            } else {
+                // If it's a string with escaped JSON, try to clean it
+                $cleaned = trim($hotel->amenities, '"[]');
+                if (!empty($cleaned)) {
+                    $amenities = explode(',', str_replace('\\"', '', $cleaned));
+                    $amenities = array_map('trim', $amenities);
+                }
+            }
+        } elseif (is_array($hotel->amenities)) {
+            $amenities = $hotel->amenities;
+        }
+    }
+@endphp
+
+@if(count($amenities) > 0)
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 class="text-lg font-bold text-gray-900 mb-4">Amenities</h3>
+        <div class="flex flex-wrap gap-2">
             @php
-                $amenities = json_decode($hotel->amenities ?? '[]', true) ?? [];
+                $amenityLabels = [
+                    'wifi' => '<i class="fas fa-wifi mr-1"></i> WiFi',
+                    'parking' => '<i class="fas fa-parking mr-1"></i> Parking',
+                    'pool' => '<i class="fas fa-swimming-pool mr-1"></i> Pool',
+                    'gym' => '<i class="fas fa-dumbbell mr-1"></i> Gym',
+                    'spa' => '<i class="fas fa-spa mr-1"></i> Spa',
+                    'restaurant' => '<i class="fas fa-utensils mr-1"></i> Restaurant',
+                    'bar' => '<i class="fas fa-glass-martini-alt mr-1"></i> Bar',
+                    'breakfast' => '<i class="fas fa-coffee mr-1"></i> Breakfast',
+                    'air_conditioning' => '<i class="fas fa-snowflake mr-1"></i> AC',
+                    'room_service' => '<i class="fas fa-concierge-bell mr-1"></i> Room Service',
+                    'laundry' => '<i class="fas fa-tshirt mr-1"></i> Laundry',
+                    'concierge' => '<i class="fas fa-user-tie mr-1"></i> Concierge',
+                    'business_center' => '<i class="fas fa-briefcase mr-1"></i> Business Center',
+                    'meeting_rooms' => '<i class="fas fa-users mr-1"></i> Meeting Rooms',
+                    'airport_shuttle' => '<i class="fas fa-shuttle-van mr-1"></i> Airport Shuttle',
+                    'pet_friendly' => '<i class="fas fa-paw mr-1"></i> Pet Friendly',
+                    'family_rooms' => '<i class="fas fa-home mr-1"></i> Family Rooms',
+                    'non_smoking' => '<i class="fas fa-smoking-ban mr-1"></i> Non-Smoking',
+                    'accessible' => '<i class="fas fa-wheelchair mr-1"></i> Accessible',
+                ];
             @endphp
-            @if(count($amenities) > 0)
-                <div class="bg-white rounded-lg border border-gray-200 p-6">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Amenities</h3>
-                    <div class="flex flex-wrap gap-2">
-                        @php
-                            $amenityLabels = [
-                                'wifi' => '<i class="fas fa-wifi mr-1"></i> WiFi',
-                                'parking' => '<i class="fas fa-parking mr-1"></i> Parking',
-                                'pool' => '<i class="fas fa-swimming-pool mr-1"></i> Pool',
-                                'gym' => '<i class="fas fa-dumbbell mr-1"></i> Gym',
-                                'spa' => '<i class="fas fa-spa mr-1"></i> Spa',
-                                'restaurant' => '<i class="fas fa-utensils mr-1"></i> Restaurant',
-                                'bar' => '<i class="fas fa-glass-martini-alt mr-1"></i> Bar',
-                                'breakfast' => '<i class="fas fa-coffee mr-1"></i> Breakfast',
-                                'air_conditioning' => '<i class="fas fa-snowflake mr-1"></i> AC',
-                                'room_service' => '<i class="fas fa-concierge-bell mr-1"></i> Room Service',
-                                'laundry' => '<i class="fas fa-tshirt mr-1"></i> Laundry',
-                                'concierge' => '<i class="fas fa-user-tie mr-1"></i> Concierge',
-                                'business_center' => '<i class="fas fa-briefcase mr-1"></i> Business Center',
-                                'meeting_rooms' => '<i class="fas fa-users mr-1"></i> Meeting Rooms',
-                                'airport_shuttle' => '<i class="fas fa-shuttle-van mr-1"></i> Airport Shuttle',
-                                'pet_friendly' => '<i class="fas fa-paw mr-1"></i> Pet Friendly',
-                                'family_rooms' => '<i class="fas fa-home mr-1"></i> Family Rooms',
-                                'non_smoking' => '<i class="fas fa-smoking-ban mr-1"></i> Non-Smoking',
-                                'accessible' => '<i class="fas fa-wheelchair mr-1"></i> Accessible',
-                            ];
-                        @endphp
-                        @foreach($amenities as $amenity)
-                            @if(isset($amenityLabels[$amenity]))
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
-                                    {!! $amenityLabels[$amenity] !!}
-                                </span>
-                            @endif
-                        @endforeach
-                    </div>
-                </div>
-            @endif
+            @foreach($amenities as $amenity)
+                @if(isset($amenityLabels[$amenity]))
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                        {!! $amenityLabels[$amenity] !!}
+                    </span>
+                @else
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                        <i class="fas fa-check mr-1"></i> {{ ucfirst(str_replace('_', ' ', $amenity)) }}
+                    </span>
+                @endif
+            @endforeach
+        </div>
+    </div>
+@endif
         </div>
     </div>
 </div>

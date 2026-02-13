@@ -34,7 +34,8 @@ class Hotel extends Model
     protected $casts = [
         'check_in_time' => 'datetime:H:i',
         'check_out_time' => 'datetime:H:i',
-        'amenities' => 'array',
+        // Remove the amenities cast for now since it's not working
+        // 'amenities' => 'array',
     ];
 
     /**
@@ -66,7 +67,35 @@ class Hotel extends Model
      */
     public function getAmenitiesListAttribute(): array
     {
-        $amenities = $this->amenities ?? [];
+        $amenities = $this->amenities;
+
+        // If amenities is null or empty, return empty array
+        if (empty($amenities)) {
+            return [];
+        }
+
+        // Try to decode as JSON first (for data like "[\"wifi\",\"parking\"]")
+        if (is_string($amenities) && str_starts_with($amenities, '[')) {
+            $decoded = json_decode($amenities, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $amenities = $decoded;
+            }
+        }
+
+        // If still a string, try to explode by comma (for legacy data)
+        if (is_string($amenities) && !is_array($amenities)) {
+            $amenities = explode(',', $amenities);
+        }
+
+        // Ensure we have an array
+        if (!is_array($amenities)) {
+            return [];
+        }
+
+        // Clean up array values
+        $amenities = array_map('trim', $amenities);
+        $amenities = array_filter($amenities); // Remove empty values
+
         $amenityLabels = [
             'wifi' => 'WiFi',
             'parking' => 'Parking',
@@ -91,8 +120,14 @@ class Hotel extends Model
 
         $formattedAmenities = [];
         foreach ($amenities as $amenity) {
+            // Remove quotes if present
+            $amenity = trim($amenity, '"\'');
+
             if (isset($amenityLabels[$amenity])) {
                 $formattedAmenities[$amenity] = $amenityLabels[$amenity];
+            } elseif (!empty($amenity)) {
+                // If not in our labels list, use the amenity as is
+                $formattedAmenities[$amenity] = ucwords(str_replace('_', ' ', $amenity));
             }
         }
 
@@ -119,8 +154,8 @@ class Hotel extends Model
      */
     public function hasAmenity(string $amenity): bool
     {
-        $amenities = $this->amenities ?? [];
-        return in_array($amenity, $amenities);
+        $amenitiesList = $this->amenities_list;
+        return array_key_exists($amenity, $amenitiesList);
     }
 
     /**
@@ -128,7 +163,8 @@ class Hotel extends Model
      */
     public function getAmenitiesCountAttribute(): int
     {
-        return count($this->amenities ?? []);
+        $amenitiesList = $this->amenities_list;
+        return count($amenitiesList);
     }
 
     /**
@@ -145,5 +181,34 @@ class Hotel extends Model
     public function getBookingsCountAttribute(): int
     {
         return \App\Models\RoomBooking::where('agent_id', $this->agent_id)->count();
+    }
+
+    /**
+     * Set amenities attribute - ensure it's stored properly
+     */
+    public function setAmenitiesAttribute($value)
+    {
+        if (is_array($value)) {
+            $this->attributes['amenities'] = json_encode($value);
+        } elseif (is_string($value) && !empty($value)) {
+            // If it's already a JSON string, keep it
+            if (json_decode($value) !== null) {
+                $this->attributes['amenities'] = $value;
+            } else {
+                // If it's a comma-separated string, convert to array then JSON
+                $array = array_map('trim', explode(',', $value));
+                $this->attributes['amenities'] = json_encode($array);
+            }
+        } else {
+            $this->attributes['amenities'] = json_encode([]);
+        }
+    }
+
+    /**
+     * Get amenities as array directly
+     */
+    public function getAmenitiesArrayAttribute(): array
+    {
+        return $this->amenities_list;
     }
 }

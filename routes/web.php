@@ -13,17 +13,22 @@ use App\Http\Controllers\Agent\TourBookingController;
 use App\Http\Controllers\Agent\TourController;
 use App\Http\Controllers\Agent\TourDateController;
 use App\Http\Controllers\Frontend\BlogController;
+use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\TourController as FrontendTourController;
+use App\Http\Controllers\Frontend\HotelController as FrontendHotelController; // Add this
+use App\Http\Controllers\Frontend\MyBookingController as FrontendMyBookingController;
+use App\Http\Controllers\Frontend\RestaurantController as FrontendRestaurantController;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 // Route::get('/', function () {
 //     return view('welcome');
 // });
-Route::get('/', function () {
-    return view('frontend.home');
-});
-
+// Route::get('/', function () {
+//     return view('frontend.home');
+// });
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/dashboard', function () {
     $user = Auth::user();
@@ -43,11 +48,8 @@ Route::middleware('auth')->group(function () {
 
 // Agent routes
 Route::middleware(['auth', 'role:agent'])->prefix('agent')->name('agent.')->group(function () {
-    // KEEP ONLY THIS ONE - the controller route:
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // REMOVE THIS DUPLICATE:
-    // Route::get('/dashboard', fn() => view('agent.dashboard'))->name('dashboard');
     Route::get('/hotels', [HotelController::class, 'index'])->name('hotels.index');
     Route::get('/hotels/{hotel}', [HotelController::class, 'show'])->name('hotels.show');
     Route::get('/hotels/{hotel}/edit', [HotelController::class, 'edit'])->name('hotels.edit');
@@ -128,6 +130,7 @@ Route::middleware(['auth', 'role:agent'])->prefix('agent')->name('agent.')->grou
     });
 });
 
+//frontend routes
 Route::get('/become-agent', function () {
     return view('frontend.agent-request');
 })->name('agent.request.form');
@@ -135,16 +138,47 @@ Route::get('/become-agent', function () {
 Route::post('/become-agent', [AgentRequestController::class, 'store'])
     ->name('agent.request.store');
 
-//frontend routes
-// Route::get('/', [HomeController::class, 'index'])->name('home');
-// Route::get('/search', [SearchController::class, 'index'])->name('search');
-// Route::get('/tours', [TourController::class, 'index'])->name('tours');
-// Route::get('/hotels', [HotelController::class, 'index'])->name('hotels');
-// Route::get('/restaurants', [RestaurantController::class, 'index'])->name('restaurants');
-// Route::get('/about', [PageController::class, 'about'])->name('about');
+// Tour Routes
 Route::get('/tours', [FrontendTourController::class, 'index'])->name('tours.index');
 Route::get('/tours/{id}', [FrontendTourController::class, 'show'])->name('tours.show');
 Route::post('/tours/{id}/check-availability', [FrontendTourController::class, 'checkAvailability'])->name('tours.check-availability');
+
+// Hotel Frontend Routes
+Route::get('/hotels', [FrontendHotelController::class, 'index'])->name('hotels.index');
+Route::get('/hotels/{hotel}', [FrontendHotelController::class, 'show'])->name('hotels.show');
+
+// Hotel Booking Routes (authenticated)
+Route::middleware('auth')->group(function () {
+    Route::get('/hotels/{hotel}/rooms/{room}/book', [FrontendHotelController::class, 'book'])->name('hotels.book');
+    Route::post('/hotels/{hotel}/rooms/{room}/book', [FrontendHotelController::class, 'storeBooking'])->name('hotels.store-booking');
+    Route::get('/hotel-bookings/{booking}/confirmation', [FrontendHotelController::class, 'bookingConfirmation'])->name('hotels.booking.confirmation');
+    Route::get('/my-hotel-bookings', [FrontendHotelController::class, 'myBookings'])->name('hotels.my-bookings');
+    Route::post('/hotel-bookings/{booking}/cancel', [FrontendHotelController::class, 'cancelBooking'])->name('hotels.cancel-booking');
+
+    // Tour booking routes (keep these)
+    Route::post('/tours/{tour}/book', [FrontendTourController::class, 'book'])->name('tours.book');
+    Route::get('/booking/{booking}/confirmation', [FrontendTourController::class, 'confirmation'])->name('booking.confirmation');
+    Route::get('/my-bookings', [FrontendTourController::class, 'myBookings'])->name('my-bookings');
+    Route::get('/my-bookings', [FrontendMyBookingController::class, 'index'])->name('my-bookings.index');
+    Route::get('/my-bookings/tour/{id}', [FrontendMyBookingController::class, 'showTourBooking'])->name('my-bookings.tour.show');
+    Route::get('/my-bookings/room/{id}', [FrontendMyBookingController::class, 'showRoomBooking'])->name('my-bookings.room.show');
+});
+
+// Restaurant Frontend Routes
+Route::get('/restaurants', [FrontendRestaurantController::class, 'index'])->name('restaurants.index');
+Route::get('/restaurants/{restaurant}', [FrontendRestaurantController::class, 'show'])->name('restaurants.show');
+Route::post('/restaurants/{restaurant}/check-availability', [FrontendRestaurantController::class, 'checkAvailability'])->name('restaurants.check-availability');
+
+// Restaurant Reservation Routes (authenticated)
+Route::middleware('auth')->group(function () {
+    Route::get('/restaurants/{restaurant}/reserve', [FrontendRestaurantController::class, 'reserve'])->name('restaurants.reserve');
+    Route::post('/restaurants/{restaurant}/reservations', [FrontendRestaurantController::class, 'storeReservation'])->name('restaurants.store-reservation');
+    Route::get('/restaurant-reservations/{reservation}/confirmation', [FrontendRestaurantController::class, 'reservationConfirmation'])->name('restaurants.reservation.confirmation');
+    Route::post('/restaurant-reservations/{reservation}/cancel', [FrontendRestaurantController::class, 'cancelReservation'])->name('restaurants.cancel-reservation');
+     Route::get('/my-bookings/restaurant/{id}', [FrontendMyBookingController::class, 'showRestaurantReservation'])
+        ->name('my-bookings.restaurant.show');
+});
+// Other Frontend Routes
 Route::get('/blog', [BlogController::class, 'index'])->name('blog');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/contact', function () {
@@ -156,15 +190,5 @@ Route::get('/about', function () {
 
 // Route::get('/packages', [PackageController::class, 'index'])->name('packages');
 // Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
-Route::middleware(['auth'])->group(function () {
-    // Add this route for actual booking
-    Route::post('/tours/{tour}/book', [FrontendTourController::class, 'book'])->name('tours.book');
 
-    // Booking confirmation page
-    Route::get('/booking/{booking}/confirmation', [FrontendTourController::class, 'confirmation'])
-        ->name('booking.confirmation');
-
-    // User's bookings
-    Route::get('/my-bookings', [FrontendTourController::class, 'myBookings'])->name('my-bookings');
-});
 require __DIR__ . '/auth.php';

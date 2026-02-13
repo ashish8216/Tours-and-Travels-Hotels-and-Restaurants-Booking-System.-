@@ -2,12 +2,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Room extends Model
 {
     protected $fillable = [
         'agent_id',
+        'hotel_id',
         'room_name',
         'price_per_night',
         'max_guests',
@@ -18,7 +20,13 @@ class Room extends Model
         'availability',
     ];
 
-    public function agent()
+    // Add the hotel relationship
+    public function hotel(): BelongsTo
+    {
+        return $this->belongsTo(Hotel::class);
+    }
+
+    public function agent(): BelongsTo
     {
         return $this->belongsTo(User::class, 'agent_id');
     }
@@ -33,7 +41,7 @@ class Room extends Model
         return $this->hasOne(RoomImage::class)->where('is_primary', true);
     }
 
-    public function bookings()
+    public function bookings(): HasMany
     {
         return $this->hasMany(RoomBooking::class);
     }

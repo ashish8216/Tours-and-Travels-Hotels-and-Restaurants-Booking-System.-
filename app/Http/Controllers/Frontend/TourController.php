@@ -188,11 +188,6 @@ class TourController extends Controller
 
     public function myBookings()
     {
-        $bookings = Auth::user()->tourBookings()
-            ->with(['tour', 'tourDate'])
-            ->latest()
-            ->paginate(10);
-
-        return view('frontend.tour-mybookings', compact('bookings'));
+        return redirect()->route('my-bookings.index', ['#tour']);
     }
 }
